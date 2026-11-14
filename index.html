@@ -92,6 +92,11 @@ h1 span{color:var(--gold)}
 .modal td{padding:6px 2px;border-bottom:1px solid #d9c9aa;vertical-align:top}
 .modal td.p{text-align:right;white-space:nowrap;font-weight:700}
 .modal td .d{display:block;font-size:.74rem;color:#7a6855}
+.ycards{display:flex;flex-wrap:wrap;align-items:flex-end;gap:3px;margin-top:5px}
+.ycards .mc{display:block;width:30px;height:48px;border-radius:2px;overflow:hidden;background:var(--paper);box-shadow:0 0 0 1px rgba(30,22,18,.35),0 1px 2px rgba(0,0,0,.25)}
+.ycards .mc svg,.ycards .mc img{display:block;width:100%;height:100%;object-fit:cover}
+.ycards .ex{font-size:.66rem;color:#7a6855;border:1px solid #b9a582;border-radius:2px;padding:0 4px;margin-left:2px;align-self:center}
+.modal:has(.ytab){width:min(520px,100%)}
 .modal .tot td{border-bottom:0;border-top:2px solid var(--ink);font-size:1.05rem}
 .modal .row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .modal .btn{border-color:#8a6f52;color:var(--ink)}
@@ -259,10 +264,10 @@ function calc(ids){
   return {list:Y,total:Y.reduce((a,b)=>a+b[1],0)};
 }
 const YAKU_TABLE=[
- ['五光','光札5枚すべて',10],['四光','雨以外の光札4枚',8],['雨四光','柳に雨を含む光札4枚',7],['三光','雨以外の光札3枚',5],
- ['花見で一杯','桜に幕＋菊に盃',5],['月見で一杯','芒に月＋菊に盃',5],['猪鹿蝶','萩に猪・紅葉に鹿・牡丹に蝶（タネ1枚追加ごとに+1）',5],
- ['赤短','松・梅・桜の赤短（短冊1枚追加ごとに+1）',5],['青短','牡丹・菊・紅葉の青短（短冊1枚追加ごとに+1）',5],['赤短・青短','赤短と青短の両方',10],
- ['タネ','タネ札5枚（1枚追加ごとに+1）',1],['タン','短冊5枚（1枚追加ごとに+1）',1],['カス','カス札10枚。菊に盃もカスに数える（1枚追加ごとに+1）',1]
+ ['五光','光札5枚すべて',10,[0,8,28,40,44]],['四光','雨以外の光札4枚',8,[0,8,28,44]],['雨四光','柳に雨を含む光札4枚',7,[40,0,8,28],1],['三光','雨以外の光札3枚',5,[0,8,28],1],
+ ['花見で一杯','桜に幕＋菊に盃',5,[8,32]],['月見で一杯','芒に月＋菊に盃',5,[28,32]],['猪鹿蝶','萩に猪・紅葉に鹿・牡丹に蝶（タネ1枚追加ごとに+1）',5,[24,36,20]],
+ ['赤短','松・梅・桜の赤短（短冊1枚追加ごとに+1）',5,[1,5,9]],['青短','牡丹・菊・紅葉の青短（短冊1枚追加ごとに+1）',5,[21,33,37]],['赤短・青短','赤短と青短の両方',10,[1,5,9,21,33,37]],
+ ['タネ','タネ札5枚（1枚追加ごとに+1）',1,[4,12,16,29,41],1],['タン','短冊5枚（1枚追加ごとに+1）',1,[13,17,25,42,1],1],['カス','カス札10枚。菊に盃もカスに数える（1枚追加ごとに+1）',1,[2,3,6,7,10,11,14,15,18,19],1]
 ];
 
 /* ---------- 状態 ---------- */
@@ -420,7 +425,7 @@ function showTitle(){clearTimeout(T);SCREEN='title';UI=null;$('app').hidden=true
 function beginGame(n){['play','draw'].forEach(k=>{try{if(!SEA[k]){SEA[k]=new Audio(SE[k]);SEA[k].preload='auto';SEA[k].load()}}catch(e){}});SCREEN='game';UI=null;$('title').hidden=true;$('app').hidden=false;newGame(n);window.scrollTo(0,0)}
 function renderModal(){
   const ov=$('ov'),md=$('modal');let h='';const G=SCREEN==='game'&&S;
-  if(UI==='yaku'){h=`<h2>役一覧</h2><p class="sub">7文以上は得点が倍。相手がこいこい中に上がると、さらに倍になります。</p><table>${YAKU_TABLE.map(([n,d,p])=>`<tr><td><b>${n}</b><span class="d">${d}</span></td><td class="p">${p}文</td></tr>`).join('')}</table><div class="row"><button class="btn solid" data-act="close" id="m-close">閉じる</button></div>`}
+  if(UI==='yaku'){h=`<h2>役一覧</h2><p class="sub">7文以上は得点が倍。相手がこいこい中に上がると、さらに倍になります。</p><table class="ytab">${YAKU_TABLE.map(([n,d,p,ids,ex])=>`<tr><td><b>${n}</b><span class="d">${d}</span><span class="ycards" aria-hidden="true">${ids.map(i=>`<span class="mc" title="${cname(i)}">${SVG[i]}</span>`).join('')}${ex?'<span class="ex">例</span>':''}</span></td><td class="p">${p}文</td></tr>`).join('')}</table><div class="row"><button class="btn solid" data-act="close" id="m-close">閉じる</button></div>`}
   else if(UI==='howto'){h=`<h2>遊び方</h2><p class="sub">同じ月の札を合わせて取り、役をつくります。</p><ol>
     <li>手札から1枚出します。場に<b>同じ月</b>の札があれば2枚とも取れます。なければ場に置きます。</li>
     <li>続けて山札を1枚めくり、同じように合わせます。</li>
