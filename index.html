@@ -174,6 +174,81 @@ h1 span{color:var(--gold)}
 .modal ol b{color:var(--red)}
 @media (max-width:520px){h1{font-size:1.3rem}.mat{padding:10px;gap:10px}.deckbox{width:100%}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== スマホ表示：対局画面をスクロールなしで1画面に収める（縦持ち・横持ち） ===== */
+@media (orientation:portrait) and (max-width:600px),(orientation:landscape) and (max-height:500px){
+  .app{position:fixed;inset:0;max-width:none;margin:0;gap:5px;overflow:hidden;
+    padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+  /* 最下部の状況説明文は表示しない（読み上げ用には残す） */
+  .status{position:absolute;width:1px;height:1px;min-height:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .top{flex-wrap:nowrap;gap:6px}
+  .brand{min-width:0}
+  .round{font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .actions{gap:5px;flex:none}
+  .top .btn{padding:3px 8px;font-size:.7rem;white-space:nowrap}
+  .side{gap:4px;min-width:0}
+  #cpu{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who hand" "caps caps";align-items:center;gap:4px 8px}
+  #cpu>.who{grid-area:who}#cpu>.cpuhand{grid-area:hand}#cpu>.caps{grid-area:caps}
+  .who{gap:2px 6px;min-width:0}
+  .who .nm{font-size:.9rem}
+  .who .sc{font-size:.75rem}.who .sc b{font-size:.95rem}
+  .oya{font-size:.6rem;padding:0 4px}
+  .koibadge{font-size:.62rem;padding:0 5px}
+  .yakus{gap:3px}
+  .chip{font-size:.6rem;padding:0 5px}
+  .turnmark{width:6px;height:6px}
+  /* 取り札：1行に収まるよう、枚数が多いほど重ねを深くする */
+  .caps{flex-wrap:nowrap;gap:8px;min-height:0;min-width:0}
+  .grp{flex:0 1 auto;font-size:.58rem;min-width:max(var(--mw),3.4em);gap:1px}
+  .grp .gl{font-size:inherit;line-height:1.25;white-space:nowrap}
+  .grp .row{padding-left:0;height:var(--mh);min-width:0}
+  .grp .row .card{flex:0 1 auto;width:calc(var(--mw)*.5);min-width:0;height:var(--mh);margin-left:0;background:none;box-shadow:none;border-radius:2px}
+  .grp .row .card:last-child{flex-shrink:0;width:var(--mw)}
+  .grp .row .card img,.grp .row .card svg{width:var(--mw);height:var(--mh);max-width:none;border-radius:2px;box-shadow:-1px 0 2px rgba(0,0,0,.5)}
+  .cpuhand{padding-left:calc(var(--mw)*.4);min-height:0}
+  .cpuhand .back{width:calc(var(--mw)*.8);height:calc(var(--mw)*1.28);margin-left:calc(var(--mw)*-.4);border-width:1px}
+  .turnbar{min-height:0;align-items:center}
+  .turnbar span{font-size:.8rem;padding:1px 14px;letter-spacing:.1em}
+  /* 場：残りの高さをすべて使う。札の大きさ(--fc)と列数(--c)はJSで画面に合わせて決める */
+  .mat{--fit:1;--g:4px;contain:size;flex:1 1 0;min-height:0;flex-wrap:nowrap;align-items:center;justify-content:center;padding:6px;gap:8px}
+  .deckbox{flex:none;width:var(--fc,48px);flex-direction:column;align-items:center;gap:4px}
+  .deckbox .pile{gap:2px;width:100%}
+  .deckbox .pile:first-child .lb{display:none}
+  .deck{width:calc(var(--fc,48px)*.62);height:calc(var(--fc,48px)*.992);font-size:.85rem;border-width:1px}
+  .pile .card,.slotempty{width:var(--fc,48px);height:calc(var(--fc,48px)*1.6)}
+  .pile .lb{font-size:.55rem;white-space:normal;text-align:center;line-height:1.25;height:2.5em;overflow:hidden;letter-spacing:0}
+  .field{flex:none;display:grid;grid-template-columns:repeat(var(--c,4),var(--fc,48px));grid-auto-rows:calc(var(--fc,48px)*1.6);gap:var(--g);min-height:0;align-content:center}
+  .field .card{width:var(--fc,48px);height:calc(var(--fc,48px)*1.6)}
+  /* 手札：8枚が横1列に収まる大きさ */
+  .hand{--hw:min(calc((100vw - 40px)/8),var(--hmax));flex-wrap:nowrap;gap:3px;min-height:0;padding-bottom:6px}
+  @supports (container-type:inline-size){.hand{--hw:min(calc((100cqw - 21px)/8),var(--hmax));container-type:inline-size}}
+  .hand .card{flex:none;width:var(--hw);height:calc(var(--hw)*1.6)}
+  .overlay{padding:10px}
+  .modal{box-sizing:border-box;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:16px 16px 14px}
+  .modal h2{font-size:1.25rem}
+}
+/* 縦持ち：上からCPU・手番・場・自分の順に縦一列 */
+@media (orientation:portrait) and (max-width:600px){
+  .app{display:flex;flex-direction:column;
+    --mw:clamp(16px,4.2vh,34px);--mw:clamp(16px,4.2dvh,34px);--mh:calc(var(--mw)*1.6);
+    --hmax:9vh;--hmax:9dvh}
+}
+/* 横持ち：左に得点・取り札、右に場と手札 */
+@media (orientation:landscape) and (max-height:500px){
+  .app{display:grid;grid-template-columns:minmax(0,37fr) minmax(0,63fr);grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:"top turn" "cpu mat" ". mat" "pcaps hand" "pwho hand";column-gap:14px;
+    --mw:clamp(16px,8.5vh,40px);--mw:clamp(16px,8.5dvh,40px);--mh:calc(var(--mw)*1.6);
+    --hmax:15vh;--hmax:15dvh}
+  .top{grid-area:top}#cpu{grid-area:cpu;align-self:start}#turnbar{grid-area:turn}#mat{grid-area:mat}
+  #you{display:contents}
+  #you>.caps{grid-area:pcaps;align-self:end}#you>.who{grid-area:pwho;align-self:start}#you>.hand{grid-area:hand;align-self:end}
+  .modal{padding:12px 16px 10px}
+  .modal .sub{margin-bottom:6px}
+  .modal td{padding:3px 2px}
+  .final{margin:2px 0}.final b{font-size:1.5rem}
+  .modal .row{margin-top:8px}
+  .modal .big{padding:7px 18px}
+}
 </style>
 
 <section class="title" id="title">
@@ -425,9 +500,29 @@ function render(){
   $('turnbar').innerHTML=live?(S.turn==='c'?'<span class="c">CPUの番</span>':'<span class="p">あなたの番</span>'):'';
   const key=S.round+'-'+S.turn+'-'+S.hand.p.length+'-'+S.hand.c.length;
   if(live&&S.phase==='play'&&key!==FLASHKEY){FLASHKEY=key;showFlash(S.turn)}
+  fitField();
   renderModal();
   runFly();
 }
+/* スマホ表示：場の空きに合わせて場札の列数と大きさを決める（PC表示では何もしない） */
+function fitField(){
+  const m=$('mat');if(!m||!S)return;
+  const cs=getComputedStyle(m);
+  if(cs.getPropertyValue('--fit').trim()!=='1'){m.style.removeProperty('--fc');m.style.removeProperty('--c');return}
+  const px=k=>parseFloat(cs[k])||0;
+  const W=m.clientWidth-px('paddingLeft')-px('paddingRight'),H=m.clientHeight-px('paddingTop')-px('paddingBottom');
+  if(W<=0||H<=0)return;
+  const g=parseFloat(cs.getPropertyValue('--g'))||4,dg=px('columnGap');
+  // 8枚以下は同じ大きさのまま（毎手で大きさが変わらないように）
+  const n=Math.max(8,S.field.length);let best=null;
+  for(let r=1;r<=4;r++){const c=Math.ceil(n/r);
+    // 左列（山札＋出し札/めくり札）と r 段の場札が、幅にも高さにも収まる最大の大きさ
+    const s=Math.min((W-dg-(c-1)*g)/(c+1),(H-(r-1)*g)/r/1.6,(H-30)/2.6);
+    if(!best||s>best.s+.5)best={c,s}}
+  m.style.setProperty('--c',best.c);m.style.setProperty('--fc',Math.max(18,Math.floor(best.s))+'px');
+}
+addEventListener('resize',()=>{if(SCREEN==='game')fitField()});
+document.fonts?.ready?.then(()=>{if(SCREEN==='game')fitField()});
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 function showFlash(w){const f=$('flash');f.innerHTML=`<div class="${w}">${w==='c'?'CPUの番':'あなたの番'}</div>`;f.hidden=false;
   clearTimeout(FT);FT=setTimeout(()=>{f.hidden=true},1000)}
